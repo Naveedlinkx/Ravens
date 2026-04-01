@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — Azizi Transport Report</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+    }
+
+    .navbar {
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar h1 { font-size: 1.5em; }
+    .navbar button {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid white;
+      padding: 8px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
+
+    .section {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .section h2 {
+      color: #1e3c72;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #2a5298;
+      padding-bottom: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: #555;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1em;
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      background: #2a5298;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1em;
+      transition: all 0.3s;
+    }
+
+    .btn:hover { background: #1e3c72; }
+    .btn-danger { background: #e74c3c; }
+    .btn-danger:hover { background: #c0392b; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-box {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .stat-value { font-size: 2em; font-weight: bold; }
+    .stat-label { font-size: 0.9em; opacity: 0.9; margin-top: 5px; }
+
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .media-item {
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px;
+      text-align: center;
+      position: relative;
+    }
+
+    .media-item img {
+      max-width: 100%;
+      max-height: 100px;
+      margin-bottom: 10px;
+    }
+
+    .media-delete {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 3px 8px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 0.8em;
+    }
+
+    .audit-log {
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px;
+    }
+
+    .audit-item {
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+      font-size: 0.9em;
+    }
+
+    .audit-item:last-child { border-bottom: none; }
+    .audit-time { color: #999; font-size: 0.85em; }
+
+    .message {
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .message.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      display: block;
+    }
+
+    .message.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+      display: block;
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+    }
+
+    .file-input-wrapper input[type=file] {
+      position: absolute;
+      left: -9999px;
+    }
+
+    .file-input-label {
+      padding: 10px 20px;
+      background: #2a5298;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+
+<div class="navbar">
+  <h1>🚌 Admin Dashboard</h1>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<div class="container">
+
+  <div id="message" class="message"></div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-box">
+      <div class="stat-value" id="stat-media">0</div>
+      <div class="stat-label">Media Files</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-value" id="stat-sessions">0</div>
+      <div class="stat-label">Active Sessions</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-value" id="stat-audit">0</div>
+      <div class="stat-label">Audit Entries</div>
+    </div>
+  </div>
+
+  <!-- Settings -->
+  <div class="section">
+    <h2>Settings</h2>
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="site_title">Site Title</label>
+        <input type="text" id="site_title" placeholder="Site title">
+      </div>
+      <div class="form-group">
+        <label for="manager_name">Manager Name</label>
+        <input type="text" id="manager_name" placeholder="Manager name">
+      </div>
+      <div class="form-group">
+        <label for="manager_title">Manager Title</label>
+        <input type="text" id="manager_title" placeholder="Manager title">
+      </div>
+      <div class="form-group">
+        <label for="prepared_by">Prepared By</label>
+        <input type="text" id="prepared_by" placeholder="Prepared by">
+      </div>
+    </div>
+    <button class="btn" onclick="saveSettings()" style="margin-top: 15px;">Save Settings</button>
+  </div>
+
+  <!-- Content -->
+  <div class="section">
+    <h2>Content</h2>
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="kpi_employees">Employees Transported</label>
+        <input type="text" id="kpi_employees" placeholder="122,732">
+      </div>
+      <div class="form-group">
+        <label for="kpi_calls">Emergency Calls</label>
+        <input type="text" id="kpi_calls" placeholder="450+">
+      </div>
+      <div class="form-group">
+        <label for="kpi_buses_day">Buses Deployed Daily</label>
+        <input type="text" id="kpi_buses_day" placeholder="446">
+      </div>
+      <div class="form-group">
+        <label for="kpi_injuries">Injuries Reported</label>
+        <input type="text" id="kpi_injuries" placeholder="ZERO">
+      </div>
+    </div>
+    <div class="form-group" style="margin-top: 15px;">
+      <label for="summary_headline">Summary Headline</label>
+      <input type="text" id="summary_headline" placeholder="Full service. Zero injuries.">
+    </div>
+    <div class="form-group">
+      <label for="summary_body">Summary Body</label>
+      <textarea id="summary_body" placeholder="The Azizi Transport..."></textarea>
+    </div>
+    <button class="btn" onclick="saveContent()">Save Content</button>
+  </div>
+
+  <!-- Media Upload -->
+  <div class="section">
+    <h2>Media Upload</h2>
+    <div class="file-input-wrapper">
+      <label class="file-input-label">
+        Choose Files
+        <input type="file" id="fileInput" multiple onchange="handleFileSelect(event)">
+      </label>
+    </div>
+    <div class="media-grid" id="mediaContainer"></div>
+  </div>
+
+  <!-- Audit Log -->
+  <div class="section">
+    <h2>Audit Log</h2>
+    <div class="audit-log" id="auditLog"></div>
+  </div>
+
+</div>
+
+<script>
+  async function loadDashboard() {
+    try {
+      // Load settings
+      const settings = await fetch('/api/settings').then(r => r.json());
+      if (settings.ok && settings.settings) {
+        document.getElementById('site_title').value = settings.settings.site_title || '';
+        document.getElementById('manager_name').value = settings.settings.manager_name || '';
+        document.getElementById('manager_title').value = settings.settings.manager_title || '';
+        document.getElementById('prepared_by').value = settings.settings.prepared_by || '';
+      }
+
+      // Load content
+      const content = await fetch('/api/content').then(r => r.json());
+      if (content.ok && content.content) {
+        document.getElementById('kpi_employees').value = content.content.kpi_employees || '';
+        document.getElementById('kpi_calls').value = content.content.kpi_calls || '';
+        document.getElementById('kpi_buses_day').value = content.content.kpi_buses_day || '';
+        document.getElementById('kpi_injuries').value = content.content.kpi_injuries || '';
+        document.getElementById('summary_headline').value = content.content.summary_headline || '';
+        document.getElementById('summary_body').value = content.content.summary_body || '';
+      }
+
+      // Load stats
+      const stats = await fetch('/api/stats').then(r => r.json());
+      if (stats.ok && stats.stats) {
+        document.getElementById('stat-media').textContent = stats.stats.media;
+        document.getElementById('stat-sessions').textContent = stats.stats.sessions;
+        document.getElementById('stat-audit').textContent = stats.stats.audit;
+
+        // Load audit log
+        if (stats.audit_log) {
+          const log = document.getElementById('auditLog');
+          log.innerHTML = stats.audit_log.map(entry => `
+            <div class="audit-item">
+              <strong>${entry.action}</strong> by ${entry.user}
+              <div class="audit-time">${new Date(entry.ts).toLocaleString()}</div>
+              ${entry.detail ? `<div style="font-size: 0.85em; color: #666;">${entry.detail}</div>` : ''}
+            </div>
+          `).join('');
+        }
+      }
+
+      // Load media
+      const media = await fetch('/api/media').then(r => r.json());
+      if (media.ok && media.media) {
+        const container = document.getElementById('mediaContainer');
+        container.innerHTML = media.media.map(file => `
+          <div class="media-item">
+            <button class="media-delete" onclick="deleteMedia(${file.id})">Delete</button>
+            <img src="${file.url}" alt="${file.original}" onerror="this.textContent='[File]';">
+            <div style="font-size: 0.8em; color: #666; word-break: break-word;">${file.original}</div>
+          </div>
+        `).join('');
+      }
+    } catch (e) {
+      console.error('Load error:', e);
+    }
+  }
+
+  async function saveSettings() {
+    const data = {
+      site_title: document.getElementById('site_title').value,
+      manager_name: document.getElementById('manager_name').value,
+      manager_title: document.getElementById('manager_title').value,
+      prepared_by: document.getElementById('prepared_by').value
+    };
+
+    const res = await fetch('/api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+    const result = await res.json();
+    showMessage(result.ok ? 'Settings saved!' : 'Error saving settings', result.ok ? 'success' : 'error');
+  }
+
+  async function saveContent() {
+    const data = {
+      kpi_employees: document.getElementById('kpi_employees').value,
+      kpi_calls: document.getElementById('kpi_calls').value,
+      kpi_buses_day: document.getElementById('kpi_buses_day').value,
+      kpi_injuries: document.getElementById('kpi_injuries').value,
+      summary_headline: document.getElementById('summary_headline').value,
+      summary_body: document.getElementById('summary_body').value
+    };
+
+    const res = await fetch('/api/content', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+    const result = await res.json();
+    showMessage(result.ok ? 'Content saved!' : 'Error saving content', result.ok ? 'success' : 'error');
+  }
+
+  async function handleFileSelect(e) {
+    const files = e.target.files;
+    const formData = new FormData();
+    for (let file of files) formData.append('file', file);
+
+    const res = await fetch('/api/upload', { method: 'POST', body: formData });
+    const result = await res.json();
+    if (result.ok) {
+      showMessage('Files uploaded!', 'success');
+      loadDashboard();
+    } else {
+      showMessage('Upload error', 'error');
+    }
+  }
+
+  async function deleteMedia(id) {
+    if (confirm('Delete this file?')) {
+      const res = await fetch(`/api/media/${id}`, { method: 'DELETE' });
+      const result = await res.json();
+      if (result.ok) {
+        showMessage('File deleted!', 'success');
+        loadDashboard();
+      }
+    }
+  }
+
+  function showMessage(text, type) {
+    const msg = document.getElementById('message');
+    msg.textContent = text;
+    msg.className = 'message ' + type;
+    setTimeout(() => msg.style.display = 'none', 3000);
+  }
+
+  function logout() {
+    fetch('/api/logout', { method: 'POST' }).then(() => window.location.href = '/admin/login');
+  }
+
+  // Load on start
+  loadDashboard();
+  setInterval(loadDashboard, 10000); // Refresh every 10s
+</script>
+
+</body>
+</html>
