@@ -1,18 +1,14 @@
 {
   "name": "azizi-transport-report",
   "version": "2.0.0",
-  "description": "Azizi Developments — Transport Operations Heavy Rainfall Response Report 2026",
+  "description": "Azizi Developments Transport Operations Report 2026",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "setup": "node scripts/setup.js",
-    "dev": "node scripts/setup.js && node server.js"
+    "build": "node -e \"const fs=require('fs'),path=require('path');['data','data/uploads'].forEach(d=>{if(!fs.existsSync(d))fs.mkdirSync(d,{recursive:true})});if(!fs.existsSync('data/db.json'))fs.writeFileSync('data/db.json',JSON.stringify({content:{},settings:{},audit_log:[]},null,2));console.log('Build complete');\""
   },
   "engines": {
     "node": ">=16.0.0"
   },
-  "keywords": ["azizi", "transport", "operations", "report"],
-  "author": "Naveed — Azizi Developments Transport Operations",
-  "license": "UNLICENSED",
   "dependencies": {}
 }
