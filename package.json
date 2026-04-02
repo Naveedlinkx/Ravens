@@ -1,1 +1,14 @@
-{ "name": "your-app-name", "version": "1.0.0", "main": "server.js", "dependencies": { "express": "^4.17.1" } }
+{
+  "name": "azizi-transport-report",
+  "version": "2.0.0",
+  "description": "Azizi Developments Transport Operations Report 2026",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "build": "node -e \"const fs=require('fs'),path=require('path');['data','data/uploads'].forEach(d=>{if(!fs.existsSync(d))fs.mkdirSync(d,{recursive:true})});if(!fs.existsSync('data/db.json'))fs.writeFileSync('data/db.json',JSON.stringify({content:{},settings:{},audit_log:[]},null,2));console.log('Build complete');\""
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {}
+}
